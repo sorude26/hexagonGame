@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,7 +28,10 @@ namespace Hexagon
         {
             get => Data[target];
         }
+        public void SearchExtent(int movePower,Func<Point,int> check)
+        {
 
+        }
         public IEnumerator GetEnumerator()
         {
             for (int i = 0; i < Data.Length; i++)
@@ -35,6 +39,7 @@ namespace Hexagon
                 yield return this[i];
             }
         }
+
         /// <summary>
         /// 座標データを生成する
         /// </summary>
@@ -48,12 +53,27 @@ namespace Hexagon
                 }
             }
         }
+        private void CheckNeighorPoint(int point ,int movePower, Func<Point,int, int> check)
+        {
+            foreach (var checkPoint in GetNeighorPoints(point))
+            {
+                CheckPoint(checkPoint, movePower, check);
+            }
+        }
+        private void CheckPoint(Point point, int movePower, Func<Point,int, int> check)
+        {
+            int cost = check(point,movePower);
+            if (cost >= 0 && cost <= movePower)
+            {
+                CheckNeighorPoint(point.X + point.Y * MaxX, movePower - cost, check);
+            }
+        }
         /// <summary>
         /// 指定座標から周囲6方向の座標データ返す
         /// </summary>
         /// <param name="point"></param>
         /// <returns></returns>
-        IEnumerable<Point> GetNeighorPoints(int point)
+        private IEnumerable<Point> GetNeighorPoints(int point)
         {
             var start = Data[point];
             if (start.Y > 0)
