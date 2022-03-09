@@ -28,9 +28,14 @@ namespace Hexagon
         {
             get => Data[target];
         }
-        public void SearchExtent(int movePower,Func<Point,int> check)
+        public void StartSearchExtent(int point,int movePower,Func<Point,Point,int> check)
         {
-
+            foreach (var dataPoint in Data)
+            {
+                dataPoint.MoveCost = -1;
+            }
+            Data[point].MoveCost = movePower;
+            CheckNeighorPoint(point, movePower, check);
         }
         public IEnumerator GetEnumerator()
         {
@@ -53,18 +58,19 @@ namespace Hexagon
                 }
             }
         }
-        private void CheckNeighorPoint(int point ,int movePower, Func<Point,int, int> check)
+        private void CheckNeighorPoint(int point ,int movePower, Func<Point,Point, int> check)
         {
             foreach (var checkPoint in GetNeighorPoints(point))
             {
-                CheckPoint(checkPoint, movePower, check);
+                CheckPoint(checkPoint, movePower, Data[point], check);
             }
         }
-        private void CheckPoint(Point point, int movePower, Func<Point,int, int> check)
+        private void CheckPoint(Point point, int movePower, Point beforePoint, Func<Point,Point, int> check)
         {
-            int cost = check(point,movePower);
+            int cost = check(point, beforePoint);
             if (cost >= 0 && cost <= movePower)
             {
+                point.MoveCost = movePower - cost;
                 CheckNeighorPoint(point.X + point.Y * MaxX, movePower - cost, check);
             }
         }

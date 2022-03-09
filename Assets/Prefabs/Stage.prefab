@@ -44,5 +44,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mapSize: {x: 6, y: 6}
-  _tilePrefab: {fileID: 4746706332836434742, guid: d4628e9f27d3202439eaa249a99e8121, type: 3}
-  _hexagonW: 1
+  _tilePrefab: {fileID: 1575278326256665576, guid: d4628e9f27d3202439eaa249a99e8121, type: 3}
+  power: 5

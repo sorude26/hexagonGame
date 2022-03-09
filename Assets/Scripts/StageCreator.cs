@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Hexagon;
 
 public class StageCreator : MonoBehaviour
 {
@@ -11,28 +13,46 @@ public class StageCreator : MonoBehaviour
     [Header("並べるタイルのPrefab")]
     [SerializeField]
     StageTile _tilePrefab = default;
+    [SerializeField]
+    int power = 5;
     #endregion
 
     /// <summary> ステージデータ </summary>
-    Hexagon.Map _mapData = default;
+    Map _mapData = default;
     /// <summary> タイルリスト </summary>
     List<StageTile> _tileData = default;
 
     private void Awake()
     {
-        _mapData = new Hexagon.Map(_mapSize.x, _mapSize.y);
+        _mapData = new Map(_mapSize.x, _mapSize.y);
         _tileData = new List<StageTile>();
     }
-    void Start()
+    private void Start()
     {
         foreach (var point in _mapData)
         {
-            Hexagon.Point pointData = (Hexagon.Point)point;
+            Point pointData = (Point)point;
             if (pointData != null)
             {
                 var tile = Instantiate(_tilePrefab, transform);
                 tile.StartSet(pointData,_mapSize.x);
+                tile.OnSelectSearch += Search;
                 _tileData.Add(tile);
+            }
+        }
+    }
+    public void Search(int point, Func<Point, Point, int> check)
+    {
+        foreach (var tile in _tileData)
+        {
+            tile.CloseTile();
+        }
+        _mapData.StartSearchExtent(point, power, check);
+        for (int i = 0; i < _tileData.Count; i++)
+        {
+            if(_mapData[i].MoveCost >= 0)
+            {
+                _tileData[i].SelectTile();
             }
         }
     }

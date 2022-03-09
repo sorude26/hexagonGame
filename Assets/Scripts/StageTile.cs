@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +15,11 @@ public class StageTile : MonoBehaviour
     GameObject _selectMark = default;
     #endregion
 
+    #region PrivateField
+    /// <summary> 移動コスト </summary>
+    private int _cost = 1;
+    #endregion
+
     #region Property
     /// <summary> ステージの最大X座標 </summary>
     private int _maxX = default;
@@ -23,6 +29,11 @@ public class StageTile : MonoBehaviour
     public int Y { get; private set; }
     /// <summary> ステージ座標 </summary>
     public int Point { get => X + Y * _maxX; }
+    #endregion
+
+    #region Event
+    /// <summary> 探索選択時のイベント </summary>
+    public event Action<int, Func<Point, Point, int>> OnSelectSearch;
     #endregion
 
     #region PublicMethod
@@ -37,6 +48,10 @@ public class StageTile : MonoBehaviour
         _maxX = maxX;
         transform.position = HexagonPos(X, Y);
     }
+    public void StartSearch()
+    {
+        OnSelectSearch?.Invoke(Point, PointMoveCost);
+    }
     public void SelectTile()
     {
         _selectMark.SetActive(true);
@@ -45,15 +60,19 @@ public class StageTile : MonoBehaviour
     {
         _selectMark.SetActive(false);
     }
+    /// <summary>
+    /// 移動コストを返す
+    /// </summary>
+    /// <param name="point"></param>
+    /// <param name="beforePoint"></param>
+    /// <returns></returns>
     public int PointMoveCost(Point point,Point beforePoint)
     {
-        int cost = 0;
         if (point.MoveCost >= beforePoint.MoveCost)
         {
             return -1;
         }
-
-        return cost;
+        return _cost;
     }
     #endregion
 
@@ -74,6 +93,13 @@ public class StageTile : MonoBehaviour
         float gridX = _tileWide * x + adjust * Mathf.Abs(y % 2);
         float gridY = hexagonH * y;
         return new Vector3(gridX, 0, gridY);
+    }
+    #endregion
+
+    #region UnityCallback
+    private void OnMouseDown()
+    {
+        StartSearch();
     }
     #endregion
 }
